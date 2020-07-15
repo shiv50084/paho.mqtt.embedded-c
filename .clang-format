@@ -1,19 +1,18 @@
 BasedOnStyle: LLVM                                          # LLVM, Google, Chromium, Mozilla, WebKit
 AccessModifierOffset: -4
-AlignEscapedNewlinesLeft: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: false                     # None(false), Inline, All(true)
-AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None                     # None(false), Inline, All(true)
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterDefinitionReturnType: false
+AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes
 BinPackParameters: true
 BreakBeforeBinaryOperators: NonAssignment                   # None, NonAssignment, All
-BreakBeforeBraces: Attach                                   # Attach, Linux, Stroustrup, Allman, GNU
+BreakBeforeBraces: Allman                                   # Attach, Linux, Stroustrup, Allman, GNU
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializersBeforeComma: true
 ColumnLimit: 100 
@@ -52,6 +51,6 @@ SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard: Cpp11                                             # Cpp03, Cpp11, Auto
+Standard: c++17                                             # Cpp03, Cpp11, Auto
 TabWidth: 4
 UseTab: ForIndentation                                      # Never(false), ForIndentation, Always(true)

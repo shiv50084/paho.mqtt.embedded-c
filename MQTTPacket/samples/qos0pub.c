@@ -16,12 +16,11 @@
  *******************************************************************************/
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "MQTTPacket.h"
 #include "transport.h"
-
 
 int main(int argc, char *argv[])
 {
@@ -31,7 +30,7 @@ int main(int argc, char *argv[])
 	int buflen = sizeof(buf);
 	int mysock = 0;
 	MQTTString topicString = MQTTString_initializer;
-	char* payload = "mypayload";
+	char *payload = "mypayload";
 	int payloadlen = strlen(payload);
 	int len = 0;
 	char *host = "m2m.eclipse.org";
@@ -43,8 +42,8 @@ int main(int argc, char *argv[])
 	if (argc > 2)
 		port = atoi(argv[2]);
 
-	mysock = transport_open(host,port);
-	if(mysock < 0)
+	mysock = transport_open(host, port);
+	if (mysock < 0)
 		return mysock;
 
 	printf("Sending to hostname %s port %d\n", host, port);
@@ -59,11 +58,12 @@ int main(int argc, char *argv[])
 	len = MQTTSerialize_connect((unsigned char *)buf, buflen, &data);
 
 	topicString.cstring = "mytopic";
-	len += MQTTSerialize_publish((unsigned char *)(buf + len), buflen - len, 0, 0, 0, 0, topicString, (unsigned char *)payload, payloadlen);
+	len += MQTTSerialize_publish((unsigned char *)(buf + len), buflen - len, 0, 0, 0, 0,
+	                             topicString, (unsigned char *)payload, payloadlen);
 
 	len += MQTTSerialize_disconnect((unsigned char *)(buf + len), buflen - len);
 
-	rc = transport_sendPacketBuffer(mysock, (unsigned char*)buf, len);
+	rc = transport_sendPacketBuffer(mysock, (unsigned char *)buf, len);
 	if (rc == len)
 		printf("Successfully published\n");
 	else

@@ -15,8 +15,8 @@
  *******************************************************************************/
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "MQTTPacket.h"
 #include "transport.h"
@@ -29,16 +29,16 @@ time_t old_t;
 void start_ping_timer(void)
 {
 	time(&old_t);
-	old_t += KEEPALIVE_INTERVAL/2 + 1;
+	old_t += KEEPALIVE_INTERVAL / 2 + 1;
 }
 
 int time_to_ping(void)
 {
-time_t t;
+	time_t t;
 
 	time(&t);
-	if(t >= old_t)
-	  	return 1;
+	if (t >= old_t)
+		return 1;
 	return 0;
 }
 
@@ -66,7 +66,12 @@ int samplerecv(unsigned char *address, unsigned int maxbytes);
 /* You will use your hardware specifics here, see transport.h. */
 static transport_iofunctions_t iof = {samplesend, samplerecv};
 
-enum states { IDLE, SENDPING, GETPONG };
+enum states
+{
+	IDLE,
+	SENDPING,
+	GETPONG
+};
 
 int main(int argc, char *argv[])
 {
@@ -83,13 +88,12 @@ int main(int argc, char *argv[])
 	sampleserial_init();
 
 	mysock = transport_open(&iof);
-	if(mysock < 0)
+	if (mysock < 0)
 		return mysock;
-	/* You will (or already are) 'somehow' connect(ed) to host:port via your hardware specifics. E.g.:
-		you have a serial (RS-232/UART) link
-		you have a cell modem and you issue your AT+ magic
-		you have some TCP/IP which is not lwIP (nor a full-fledged socket compliant one)
-		 and you TCP connect
+	/* You will (or already are) 'somehow' connect(ed) to host:port via your hardware specifics.
+	   E.g.: you have a serial (RS-232/UART) link you have a cell modem and you issue your AT+ magic
+	    you have some TCP/IP which is not lwIP (nor a full-fledged socket compliant one)
+	     and you TCP connect
 	*/
 
 	mytransport.sck = &mysock;
@@ -108,11 +112,15 @@ int main(int argc, char *argv[])
 
 	printf("Sent MQTT connect\n");
 	/* wait for connack */
-	do {
+	do
+	{
 		int frc;
-		if ((frc=MQTTPacket_readnb(buf, buflen, &mytransport)) == CONNACK){
+		if ((frc = MQTTPacket_readnb(buf, buflen, &mytransport)) == CONNACK)
+		{
 			unsigned char sessionPresent, connack_rc;
-			if (MQTTDeserialize_connack(&sessionPresent, &connack_rc, buf, buflen) != 1 || connack_rc != 0){
+			if (MQTTDeserialize_connack(&sessionPresent, &connack_rc, buf, buflen) != 1
+			    || connack_rc != 0)
+			{
 				printf("Unable to connect, return code %d\n", connack_rc);
 				goto exit;
 			}
@@ -125,17 +133,21 @@ int main(int argc, char *argv[])
 	printf("MQTT connected\n");
 	start_ping_timer();
 	state = IDLE;
-	while (!toStop)	{
-		switch(state){
+	while (!toStop)
+	{
+		switch (state)
+		{
 		case IDLE:
-			if(time_to_ping()){
+			if (time_to_ping())
+			{
 				len = MQTTSerialize_pingreq(buf, buflen);
 				transport_sendPacketBuffernb_start(mysock, buf, len);
 				state = SENDPING;
 			}
 			break;
 		case SENDPING:
-			switch(transport_sendPacketBuffernb(mysock)){
+			switch (transport_sendPacketBuffernb(mysock))
+			{
 			case TRANSPORT_DONE:
 				printf("Ping...");
 				start_ping_timer();
@@ -152,15 +164,18 @@ int main(int argc, char *argv[])
 			}
 			break;
 		case GETPONG:
-			if((rc=MQTTPacket_readnb(buf, buflen, &mytransport)) == PINGRESP){
+			if ((rc = MQTTPacket_readnb(buf, buflen, &mytransport)) == PINGRESP)
+			{
 				printf("Pong\n");
 				start_ping_timer();
 				state = IDLE;
-			} else if(rc == -1){
+			}
+			else if (rc == -1)
+			{
 				/* handle I/O errors here */
 				printf("OOPS\n");
 				goto exit;
-			}	/* handle timeouts here */
+			} /* handle timeouts here */
 			break;
 		}
 	}
@@ -172,11 +187,10 @@ int main(int argc, char *argv[])
 
 exit:
 	transport_close(mysock);
-	
+
 	sampleserial_close();
 	return 0;
 }
-
 
 /* To stop the sample */
 void cfinish(int sig)
@@ -194,34 +208,35 @@ void stop_init(void)
 /* Serial hack:
 Simulate serial transfers on an established TCP connection
  */
-#include <unistd.h>
+#include <arpa/inet.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h> 
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 static int sockfd;
 
 void sampleserial_init(void)
 {
-struct sockaddr_in serv_addr;
+	struct sockaddr_in serv_addr;
 
-
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	  perror(NULL);
-	  exit(2);
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		perror(NULL);
+		exit(2);
 	}
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = inet_addr("198.41.30.241");
 	serv_addr.sin_port = htons(1883);
-	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+	{
 		printf("ERROR connecting\n");
 		exit(-1);
 	}
 	printf("- TCP Connected to Eclipse\n");
-        /* set to non-blocking */
+	/* set to non-blocking */
 	fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
 }
 
@@ -232,36 +247,38 @@ void sampleserial_close(void)
 
 int samplesend(unsigned char *address, unsigned int bytes)
 {
-int len;
+	int len;
 
-	if(rand() > (RAND_MAX/2))	// 50% probability of being busy
+	if (rand() > (RAND_MAX / 2)) // 50% probability of being busy
 		return 0;
-	if(rand() > (RAND_MAX/2)){	// 50% probability of sending half the requested data (no room in buffer)
-		if(bytes > 1)
+	if (rand() > (RAND_MAX / 2))
+	{ // 50% probability of sending half the requested data (no room in buffer)
+		if (bytes > 1)
 			bytes /= 2;
 	}
-	if((len = write(sockfd, address, bytes)) >= 0)
+	if ((len = write(sockfd, address, bytes)) >= 0)
 		return len;
-	if(errno == EAGAIN)
+	if (errno == EAGAIN)
 		return 0;
 	return -1;
 }
 
 int samplerecv(unsigned char *address, unsigned int maxbytes)
 {
-int len;
+	int len;
 
-	if(rand() > (RAND_MAX/2))	// 50% probability of no data
+	if (rand() > (RAND_MAX / 2)) // 50% probability of no data
 		return 0;
-	if(rand() > (RAND_MAX/2)){	// 50% probability of getting half the requested data (not arrived yet)
-		if(maxbytes > 1){
+	if (rand() > (RAND_MAX / 2))
+	{ // 50% probability of getting half the requested data (not arrived yet)
+		if (maxbytes > 1)
+		{
 			maxbytes /= 2;
 		}
 	}
-	if((len = read(sockfd, address, maxbytes)) >= 0)
+	if ((len = read(sockfd, address, maxbytes)) >= 0)
 		return len;
-	if(errno == EAGAIN)
+	if (errno == EAGAIN)
 		return 0;
 	return -1;
 }
-

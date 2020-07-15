@@ -19,20 +19,20 @@
 
 #include <string.h>
 
-
 /**
-  * Deserializes the supplied (wire) buffer into unsubscribe data
-  * @param dup integer returned - the MQTT dup flag
-  * @param packetid integer returned - the MQTT packet identifier
-  * @param maxcount - the maximum number of members allowed in the topicFilters and requestedQoSs arrays
-  * @param count - number of members in the topicFilters and requestedQoSs arrays
-  * @param topicFilters - array of topic filter names
-  * @param buf the raw buffer data, of the correct length determined by the remaining length field
-  * @param buflen the length in bytes of the data in the supplied buffer
-  * @return the length of the serialized data.  <= 0 indicates error
-  */
-int MQTTDeserialize_unsubscribe(unsigned char* dup, unsigned short* packetid, int maxcount, int* count, MQTTString topicFilters[],
-		unsigned char* buf, int len)
+ * Deserializes the supplied (wire) buffer into unsubscribe data
+ * @param dup integer returned - the MQTT dup flag
+ * @param packetid integer returned - the MQTT packet identifier
+ * @param maxcount - the maximum number of members allowed in the topicFilters and requestedQoSs
+ * arrays
+ * @param count - number of members in the topicFilters and requestedQoSs arrays
+ * @param topicFilters - array of topic filter names
+ * @param buf the raw buffer data, of the correct length determined by the remaining length field
+ * @param buflen the length in bytes of the data in the supplied buffer
+ * @return the length of the serialized data.  <= 0 indicates error
+ */
+int MQTTDeserialize_unsubscribe(unsigned char* dup, unsigned short* packetid, int maxcount,
+                                int* count, MQTTString topicFilters[], unsigned char* buf, int len)
 {
 	MQTTHeader header = {0};
 	unsigned char* curdata = buf;
@@ -65,19 +65,18 @@ exit:
 	return rc;
 }
 
-
 /**
-  * Serializes the supplied unsuback data into the supplied buffer, ready for sending
-  * @param buf the buffer into which the packet will be serialized
-  * @param buflen the length in bytes of the supplied buffer
-  * @param packetid integer - the MQTT packet identifier
-  * @return the length of the serialized data.  <= 0 indicates error
-  */
+ * Serializes the supplied unsuback data into the supplied buffer, ready for sending
+ * @param buf the buffer into which the packet will be serialized
+ * @param buflen the length in bytes of the supplied buffer
+ * @param packetid integer - the MQTT packet identifier
+ * @return the length of the serialized data.  <= 0 indicates error
+ */
 int MQTTSerialize_unsuback(unsigned char* buf, int buflen, unsigned short packetid)
 {
 	MQTTHeader header = {0};
 	int rc = 0;
-	unsigned char *ptr = buf;
+	unsigned char* ptr = buf;
 
 	FUNC_ENTRY;
 	if (buflen < 2)
@@ -98,5 +97,3 @@ exit:
 	FUNC_EXIT_RC(rc);
 	return rc;
 }
-
-

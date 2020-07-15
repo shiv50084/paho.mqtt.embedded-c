@@ -19,7 +19,7 @@
 #define IPSTACK_H
 
 #ifndef WiFi_h
-  #include <SPI.h>
+#include <SPI.h>
 #endif
 
 #include <Client.h>
@@ -27,24 +27,23 @@
 class IPStack
 {
 public:
-    IPStack(Client& client) : client(&client)
-    {
+	IPStack(Client& client) : client(&client)
+	{
+	}
 
-    }
+	int connect(char* hostname, int port)
+	{
+		return client->connect(hostname, port);
+	}
 
-    int connect(char* hostname, int port)
-    {
-        return client->connect(hostname, port);
-    }
+	int connect(uint32_t hostname, int port)
+	{
+		return client->connect(hostname, port);
+	}
 
-    int connect(uint32_t hostname, int port)
-    {
-        return client->connect(hostname, port);
-    }
-
-    int read(unsigned char* buffer, int len, int timeout)
-    {
-        int interval = 10;  // all times are in milliseconds
+	int read(unsigned char* buffer, int len, int timeout)
+	{
+		int interval = 10; // all times are in milliseconds
 		int total = 0, rc = -1;
 
 		if (timeout < 30)
@@ -57,23 +56,22 @@ public:
 		if (client->available() >= len)
 			rc = client->readBytes((char*)buffer, len);
 		return rc;
-    }
+	}
 
-    int write(unsigned char* buffer, int len, int timeout)
-    {
-        client->setTimeout(timeout);
+	int write(unsigned char* buffer, int len, int timeout)
+	{
+		client->setTimeout(timeout);
 		return client->write((uint8_t*)buffer, len);
-    }
+	}
 
-    int disconnect()
-    {
-        client->stop();
-        return 0;
-    }
+	int disconnect()
+	{
+		client->stop();
+		return 0;
+	}
 
 private:
-
-    Client* client;
+	Client* client;
 };
 
 #endif

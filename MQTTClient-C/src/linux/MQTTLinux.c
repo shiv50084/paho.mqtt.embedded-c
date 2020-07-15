@@ -30,7 +30,6 @@ char TimerIsExpired(Timer* timer)
 	return res.tv_sec < 0 || (res.tv_sec == 0 && res.tv_usec <= 0);
 }
 
-
 void TimerCountdownMS(Timer* timer, unsigned int timeout)
 {
 	struct timeval now;
@@ -38,7 +37,6 @@ void TimerCountdownMS(Timer* timer, unsigned int timeout)
 	struct timeval interval = {timeout / 1000, (timeout % 1000) * 1000};
 	timeradd(&now, &interval, &timer->end_time);
 }
-
 
 void TimerCountdown(Timer* timer, unsigned int timeout)
 {
@@ -48,16 +46,14 @@ void TimerCountdown(Timer* timer, unsigned int timeout)
 	timeradd(&now, &interval, &timer->end_time);
 }
 
-
 int TimerLeftMS(Timer* timer)
 {
 	struct timeval now, res;
 	gettimeofday(&now, NULL);
 	timersub(&timer->end_time, &now, &res);
-	//printf("left %d ms\n", (res.tv_sec < 0) ? 0 : res.tv_sec * 1000 + res.tv_usec / 1000);
+	// printf("left %d ms\n", (res.tv_sec < 0) ? 0 : res.tv_sec * 1000 + res.tv_usec / 1000);
 	return (res.tv_sec < 0) ? 0 : res.tv_sec * 1000 + res.tv_usec / 1000;
 }
-
 
 int linux_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 {
@@ -68,7 +64,7 @@ int linux_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		interval.tv_usec = 100;
 	}
 
-	setsockopt(n->my_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&interval, sizeof(struct timeval));
+	setsockopt(n->my_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&interval, sizeof(struct timeval));
 
 	int bytes = 0;
 	while (bytes < len)
@@ -77,7 +73,7 @@ int linux_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 		if (rc == -1)
 		{
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
-			  bytes = -1;
+				bytes = -1;
 			break;
 		}
 		else if (rc == 0)
@@ -91,19 +87,17 @@ int linux_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
 	return bytes;
 }
 
-
 int linux_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
 {
 	struct timeval tv;
 
-	tv.tv_sec = 0;  /* 30 Secs Timeout */
-	tv.tv_usec = timeout_ms * 1000;  // Not init'ing this can cause strange errors
+	tv.tv_sec = 0;                  /* 30 Secs Timeout */
+	tv.tv_usec = timeout_ms * 1000; // Not init'ing this can cause strange errors
 
-	setsockopt(n->my_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv,sizeof(struct timeval));
-	int	rc = write(n->my_socket, buffer, len);
+	setsockopt(n->my_socket, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof(struct timeval));
+	int rc = write(n->my_socket, buffer, len);
 	return rc;
 }
-
 
 void NetworkInit(Network* n)
 {
@@ -112,14 +106,13 @@ void NetworkInit(Network* n)
 	n->mqttwrite = linux_write;
 }
 
-
 int NetworkConnect(Network* n, char* addr, int port)
 {
 	int type = SOCK_STREAM;
 	struct sockaddr_in address;
 	int rc = -1;
 	sa_family_t family = AF_INET;
-	struct addrinfo *result = NULL;
+	struct addrinfo* result = NULL;
 	struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
 
 	if ((rc = getaddrinfo(addr, NULL, &hints, &result)) == 0)
@@ -160,7 +153,6 @@ int NetworkConnect(Network* n, char* addr, int port)
 
 	return rc;
 }
-
 
 void NetworkDisconnect(Network* n)
 {

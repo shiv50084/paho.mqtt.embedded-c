@@ -16,8 +16,8 @@
  *******************************************************************************/
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "MQTTPacket.h"
 #include "transport.h"
@@ -30,16 +30,16 @@ time_t old_t;
 void start_ping_timer(void)
 {
 	time(&old_t);
-	old_t += KEEPALIVE_INTERVAL/2 + 1;
+	old_t += KEEPALIVE_INTERVAL / 2 + 1;
 }
 
 int time_to_ping(void)
 {
-time_t t;
+	time_t t;
 
 	time(&t);
-	if(t >= old_t)
-	  	return 1;
+	if (t >= old_t)
+		return 1;
 	return 0;
 }
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 		port = atoi(argv[2]);
 
 	mysock = transport_open(host, port);
-	if(mysock < 0)
+	if (mysock < 0)
 		return mysock;
 
 	printf("Sending to hostname %s port %d\n", host, port);
@@ -102,7 +102,8 @@ int main(int argc, char *argv[])
 	{
 		unsigned char sessionPresent, connack_rc;
 
-		if (MQTTDeserialize_connack(&sessionPresent, &connack_rc, buf, buflen) != 1 || connack_rc != 0)
+		if (MQTTDeserialize_connack(&sessionPresent, &connack_rc, buf, buflen) != 1
+		    || connack_rc != 0)
 		{
 			printf("Unable to connect, return code %d\n", connack_rc);
 			goto exit;
@@ -116,19 +117,21 @@ int main(int argc, char *argv[])
 
 	while (!toStop)
 	{
-		while(!time_to_ping());
+		while (!time_to_ping())
+			;
 		len = MQTTSerialize_pingreq(buf, buflen);
 		transport_sendPacketBuffer(mysock, buf, len);
 		printf("Ping...");
-		if (MQTTPacket_read(buf, buflen, transport_getdata) == PINGRESP){
+		if (MQTTPacket_read(buf, buflen, transport_getdata) == PINGRESP)
+		{
 			printf("Pong\n");
 			start_ping_timer();
 		}
-		else {
+		else
+		{
 			printf("OOPS\n");
 			goto exit;
 		}
-		
 	}
 
 	printf("disconnecting\n");

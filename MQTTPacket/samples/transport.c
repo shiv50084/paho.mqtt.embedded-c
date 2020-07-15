@@ -18,8 +18,8 @@
 #include <sys/types.h>
 
 #if !defined(SOCKET_ERROR)
-	/** error in socket operation */
-	#define SOCKET_ERROR -1
+/** error in socket operation */
+#define SOCKET_ERROR -1
 #endif
 
 #if defined(WIN32)
@@ -39,37 +39,36 @@
 #define socklen_t int
 #else
 #define INVALID_SOCKET SOCKET_ERROR
-#include <sys/socket.h>
-#include <sys/param.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <string.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <unistd.h>
 #endif
 
 #if defined(WIN32)
 #include <Iphlpapi.h>
 #else
-#include <sys/ioctl.h>
 #include <net/if.h>
+#include <sys/ioctl.h>
 #endif
 
 /**
 This simple low-level implementation assumes a single connection for a single thread. Thus, a static
 variable is used for that connection.
-On other scenarios, the user must solve this by taking into account that the current implementation of
-MQTTPacket_read() has a function pointer for a function call to get the data to a buffer, but no provisions
-to know the caller or other indicator (the socket id): int (*getfn)(unsigned char*, int)
+On other scenarios, the user must solve this by taking into account that the current implementation
+of MQTTPacket_read() has a function pointer for a function call to get the data to a buffer, but no
+provisions to know the caller or other indicator (the socket id): int (*getfn)(unsigned char*, int)
 */
 static int mysock = INVALID_SOCKET;
-
 
 int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 {
@@ -78,23 +77,24 @@ int transport_sendPacketBuffer(int sock, unsigned char* buf, int buflen)
 	return rc;
 }
 
-
 int transport_getdata(unsigned char* buf, int count)
 {
 	int rc = recv(mysock, buf, count, 0);
-	//printf("received %d bytes count %d\n", rc, (int)count);
+	// printf("received %d bytes count %d\n", rc, (int)count);
 	return rc;
 }
 
-int transport_getdatanb(void *sck, unsigned char* buf, int count)
+int transport_getdatanb(void* sck, unsigned char* buf, int count)
 {
-	int sock = *((int *)sck); 	/* sck: pointer to whatever the system may use to identify the transport */
+	int sock =
+	  *((int*)sck); /* sck: pointer to whatever the system may use to identify the transport */
 	/* this call will return after the timeout set on initialization if no bytes;
 	   in your system you will use whatever you use to get whichever outstanding
 	   bytes your socket equivalent has ready to be extracted right now, if any,
 	   or return immediately */
-	int rc = recv(sock, buf, count, 0);	
-	if (rc == -1) {
+	int rc = recv(sock, buf, count, 0);
+	if (rc == -1)
+	{
 		/* check error conditions from your system here, and return -1 */
 		return 0;
 	}
@@ -103,12 +103,12 @@ int transport_getdatanb(void *sck, unsigned char* buf, int count)
 
 /**
 return >=0 for a socket descriptor, <0 for an error code
-@todo Basically moved from the sample without changes, should accomodate same usage for 'sock' for clarity,
-removing indirections
+@todo Basically moved from the sample without changes, should accomodate same usage for 'sock' for
+clarity, removing indirections
 */
 int transport_open(char* addr, int port)
 {
-int* sock = &mysock;
+	int* sock = &mysock;
 	int type = SOCK_STREAM;
 	struct sockaddr_in address;
 #if defined(AF_INET6)
@@ -120,13 +120,13 @@ int* sock = &mysock;
 #else
 	sa_family_t family = AF_INET;
 #endif
-	struct addrinfo *result = NULL;
+	struct addrinfo* result = NULL;
 	struct addrinfo hints = {0, AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP, 0, NULL, NULL, NULL};
 	static struct timeval tv;
 
 	*sock = -1;
 	if (addr[0] == '[')
-	  ++addr;
+		++addr;
 
 	if ((rc = getaddrinfo(addr, NULL, &hints, &result)) == 0)
 	{
@@ -152,7 +152,7 @@ int* sock = &mysock;
 		}
 		else
 #endif
-		if (result->ai_family == AF_INET)
+		  if (result->ai_family == AF_INET)
 		{
 			address.sin_port = htons(port);
 			address.sin_family = family = AF_INET;
@@ -166,7 +166,7 @@ int* sock = &mysock;
 
 	if (rc == 0)
 	{
-		*sock =	socket(family, type, 0);
+		*sock = socket(family, type, 0);
 		if (*sock != -1)
 		{
 #if defined(NOSIGPIPE)
@@ -178,24 +178,24 @@ int* sock = &mysock;
 
 			if (family == AF_INET)
 				rc = connect(*sock, (struct sockaddr*)&address, sizeof(address));
-	#if defined(AF_INET6)
+#if defined(AF_INET6)
 			else
 				rc = connect(*sock, (struct sockaddr*)&address6, sizeof(address6));
-	#endif
+#endif
 		}
 	}
 	if (mysock == INVALID_SOCKET)
 		return rc;
 
-	tv.tv_sec = 1;  /* 1 second Timeout */
-	tv.tv_usec = 0;  
-	setsockopt(mysock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+	tv.tv_sec = 1; /* 1 second Timeout */
+	tv.tv_usec = 0;
+	setsockopt(mysock, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(struct timeval));
 	return mysock;
 }
 
 int transport_close(int sock)
 {
-int rc;
+	int rc;
 
 	rc = shutdown(sock, SHUT_WR);
 	rc = recv(sock, NULL, (size_t)0, 0);

@@ -19,51 +19,47 @@
 
 #include <WiFi.h>
 
-class WifiIPStack 
+class WifiIPStack
 {
-public:    
-    WifiIPStack()
-    {
-        //WiFi.begin();              // Use DHCP
-        iface.setTimeout(1000);    // 1 second Timeout 
-    }
-    
-    int connect(char* hostname, int port)
-    {
-        return iface.connect(hostname, port);
-    }
+public:
+	WifiIPStack()
+	{
+		// WiFi.begin();              // Use DHCP
+		iface.setTimeout(1000); // 1 second Timeout
+	}
 
-    int connect(uint32_t hostname, int port)
-    {
-        return iface.connect(hostname, port);
-    }
+	int connect(char* hostname, int port)
+	{
+		return iface.connect(hostname, port);
+	}
 
-    int read(char* buffer, int len, int timeout)
-    {
-        iface.setTimeout(timeout);
-        while(!iface.available());
-        return iface.readBytes(buffer, len);
-    }
-    
-    int write(char* buffer, int len, int timeout)
-    {
-        iface.setTimeout(timeout);  
-        return iface.write((uint8_t*)buffer, len);
-    }
-    
-    int disconnect()
-    {
-        iface.stop();
-        return 0;
-    }
-    
+	int connect(uint32_t hostname, int port)
+	{
+		return iface.connect(hostname, port);
+	}
+
+	int read(char* buffer, int len, int timeout)
+	{
+		iface.setTimeout(timeout);
+		while (!iface.available())
+			;
+		return iface.readBytes(buffer, len);
+	}
+
+	int write(char* buffer, int len, int timeout)
+	{
+		iface.setTimeout(timeout);
+		return iface.write((uint8_t*)buffer, len);
+	}
+
+	int disconnect()
+	{
+		iface.stop();
+		return 0;
+	}
+
 private:
-
-    WiFiClient iface;
-    
+	WiFiClient iface;
 };
 
 #endif
-
-
-
